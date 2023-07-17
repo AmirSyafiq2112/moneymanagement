@@ -30,18 +30,35 @@ router.get("/", async (req, res) => {
   return res.json(transactions);
 });
 
+// router.get("/:transactionId", async (req, res) => {
+//   const { transactionId } = req.params;
+
+//   let transaction;
+//   try {
+//     transaction = await getTransaction({ transactionId });
+//   } catch (error) {
+//     if (transaction === undefined) return res.sendStatus(500);
+//     if (transaction === null) return res.sendStatus(404);
+
+//     res.json(transaction);
+//   }
+// });
+
 router.get("/:transactionId", async (req, res) => {
   const { transactionId } = req.params;
 
   let transaction;
   try {
     transaction = await getTransaction({ transactionId });
-  } catch (error) {
-    if (transaction === undefined) return res.sendStatus(500);
-    if (transaction === null) return res.sendStatus(404);
-
-    res.json(transaction);
+  } catch (e) {
+    console.error(e);
+    return res.sendStatus(500);
   }
+
+  if (transaction === undefined) return res.sendStatus(500);
+  if (transaction === null) return res.sendStatus(404);
+
+  res.json(transaction);
 });
 
 router.post("/", async (req, res) => {
@@ -68,39 +85,42 @@ router.post("/", async (req, res) => {
   res.status(201).json({ id, message: "Transaction has been added" });
 });
 
-router.patch("/", async (req, res) => {
-  const {
-    id,
-    newAttribute: {},
-  } = req.body;
+router.patch("/:transactionId", async (req, res) => {
+  const id = req.params.transactionId;
+  if (id === undefined)
+    return res.status(404).json({ message: "TransactionId is missing" });
+
+  const newAttributes = req.body;
+  delete newAttributes.id;
 
   let response;
   try {
     response = await updateTransaction({ id, newAttributes });
   } catch (error) {
     if (error instanceof InvalidArgumentError)
-      return res.statussend(400).json({ message: error.message });
+      return res.sendStatus(400).json({ message: error.message });
     res.sendStatus(500);
   }
+
+  if (response.rowCount === 0) return res.sendStatus(404);
 
   if (response === undefined) return res.sendStatus(500);
 
   res.status(201).json({ id, message: "Transaction has been updated" });
 });
 
-router.delete("/", async (req, res) => {
-  const { id } = req.body;
+router.delete("/:transactionId", async (req, res) => {
+  const transactionId = req.params.transactionId;
 
   let response;
+
   try {
     response = await deleteTransaction({ transactionId });
   } catch (error) {
-    if (error instanceof InvalidArgumentError)
-      return res.sendStatus(400).json({ message: error.message });
     res.sendStatus(500);
   }
 
-  if (response.rowCount === 0) return res.sendStatus(400);
+  if (response.rowCount === 0) return res.sendStatus(404);
   if (response === undefined) return res.sendStatus(500);
 
   res.status(201).json({ message: "Transaction has been deleted" });

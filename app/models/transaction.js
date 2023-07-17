@@ -117,7 +117,6 @@ function makeValidation(attribute, value) {
       break;
     default:
       console.error("Unknown attribute value : " + attribute);
-    // return "attribute is not valid";
   }
 }
 
@@ -147,45 +146,78 @@ async function addTransaction({ id, transaction_name, value, description }) {
 
 async function updateTransaction({ id, newAttributes }) {
   //newAttributes is an object { attribute : 'valueAttribute'}
-  let checkId = await getTransaction({ transactionId: id });
-  if (checkId == null) return "id not exist";
+
+  // if (typeof id !== "string" || id.length === 0)
+  //   throw new Error("Id must be a string and longer than 0");
+  // validate(
+  //   typeof newAttributes !== "object",
+  //   "New attributes must be provided as an object"
+  // );
+
+  // const validAttribute = Object.keys(newAttributes).filter((element) =>
+  //   transactionAttribute.includes(element)
+  // );
+  // validate(
+  //   validAttribute.length === 0,
+  //   "At least one valid attribute to update must be provided"
+  // );
+
+  // let query = `update transactions set `;
+  // let bindVariables = [id];
+  // validAttribute.forEach((attribute, column, keys) => {
+  //   makeValidation(attribute, newAttributes[attribute]);
+  //   query = query + ` ${attribute} = $${column + 2}`;
+  //   bindVariables.push(newAttributes[attribute]);
+
+  //   if (column < keys.length - 1) query = query + ", ";
+  // });
+
+  // query = query + ` where id = $1 `;
+
+  // let response;
+  // try {
+  //   response = await client.query(query, bindVariables);
+  // } catch (error) {
+  //   console.error(e);
+  //   return undefined;
+  // }
+
+  // return response;
 
   if (typeof id !== "string" || id.length === 0)
     throw new Error("Id must be a string and longer than 0");
   validate(
     typeof newAttributes !== "object",
-    "New attributes must be provided as an object"
+    "New attibutes must be provided as an object"
   );
 
-  const validAttribute = Object.keys(newAttributes).filter((element) =>
+  const validAttributes = Object.keys(newAttributes).filter((element) =>
     transactionAttribute.includes(element)
   );
   validate(
-    validAttribute.length === 0,
+    validAttributes.length === 0,
     "At least one valid attribute to update must be provided"
   );
 
   let query = `update transactions set `;
   let bindVariables = [id];
-  validAttribute.forEach((attribute, column, keys) => {
+  validAttributes.forEach((attribute, i, keys) => {
     makeValidation(attribute, newAttributes[attribute]);
-    query = query + ` ${attribute} = $${column + 2}`;
+    query = query + ` ${attribute} = $${i + 2}`;
     bindVariables.push(newAttributes[attribute]);
-
-    if (column < keys.length - 1) query = query + ", ";
+    if (i < keys.length - 1) query = query + ", ";
   });
 
   query = query + ` where id = $1 `;
-
-  let response;
+  let resp;
   try {
-    response = await client.query(query, bindVariables);
-  } catch (error) {
+    resp = await client.query(query, bindVariables);
+  } catch (e) {
     console.error(e);
     return undefined;
   }
 
-  return response;
+  return resp;
 }
 
 async function deleteTransaction({ transactionId }) {

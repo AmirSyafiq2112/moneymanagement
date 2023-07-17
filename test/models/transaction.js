@@ -328,22 +328,22 @@ describe("Testing models transaction", () => {
       });
     });
 
-    describe("Testing update with id that do not exist", () => {
-      before(async () => {
-        await cleanup("notExistTransactionId");
-      });
+    // describe("Testing update with id that do not exist", () => {
+    //   before(async () => {
+    //     await cleanup("notExistTransactionId");
+    //   });
 
-      it("Correct error response", async () => {
-        const response = await updateTransaction({
-          id: "notExistTransactionId",
-          newAttributes: {
-            value: 200,
-          },
-        });
+    //   it("Correct error response", async () => {
+    //     const response = await updateTransaction({
+    //       id: "notExistTransactionId",
+    //       newAttributes: {
+    //         value: 200,
+    //       },
+    //     });
 
-        expect(response).to.equal("id not exist");
-      });
-    });
+    //     expect(response).to.equal("id not exist");
+    //   });
+    // });
   });
 
   describe("///// PRIMARY: Testing deleteTransaction /////", () => {
@@ -474,7 +474,7 @@ describe("Testing models transaction", () => {
 
     describe("Testing limit", () => {
       it("Correct number is returned", async () => {
-        let testLimit = 5;
+        let testLimit = 3;
         const response = await getTransactions({ limit: testLimit });
         // console.log(
         //   util.inspect(response, false, null, true /* enable colors */)

@@ -24,3 +24,4 @@ services:
       - POSTGRES_PASSWORD
       - POSTGRES_PORT
       - POSTGRES_HOST
+      - TESTING_API_KEY
